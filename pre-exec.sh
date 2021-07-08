@@ -6,18 +6,10 @@ set -eo pipefail
 if [ -z ${K8S_CPU+x} ]; then
   echo "No Kubernetes CPU information received from downward API"
 else
-  # Valid expessions include variations of "1", "1.0", "1000m"
-  if [[ "$K8S_CPU" == *"m" ]]; then
-    # This is millicpu format. 
-    CPU=$(echo $K8S_CPU | awk -F'm' '{print int($1/1000)}')
-    if [[ $CPU -lt 1 ]]; then
-      echo "WARNING: Less than a whole CPU allocated, Will set CPU = 1, but K8S may evict this pod!"
-      CPU=1
-    fi
-  else
-    # K8S_CPU is probably a float or integer. Just turn it into an integer,
-    # effectively rounding it down
-    CPU=$(echo $K8S_CPU | awk -F'm' '{print int($1)}')
+  CPU=$(echo $K8S_CPU | awk '{print int($1/1000)}')
+  if [[ $CPU -lt 1 ]]; then
+    echo "WARNING: Less than a whole CPU allocated, Will set CPU = 1, but K8S may evict this pod!"
+    CPU=1
   fi
   echo "NUM_CPUS=$CPU" >> /etc/condor/config.d/02-slot.conf
 fi
@@ -34,9 +26,9 @@ else
   
   # Use numfmt to read in from the API and convert it to MB for HTCondor
   MEM=$(($(echo ${K8S_MEM} | numfmt --from auto)/1024/1024))
-  if [[ $MEM -gt 128 ]]; then 
-    echo "Reserve 128MB of RAM for HTCondor daemons"
-    echo "RESERVED_MEMORY=128" >> /etc/condor/config.d/02-slot.conf
-  fi 
+  #if [[ $MEM -gt 128 ]]; then 
+  #  echo "Reserve 128MB of RAM for HTCondor daemons"
+  #  echo "RESERVED_MEMORY=128" >> /etc/condor/config.d/02-slot.conf
+  #fi 
   echo "MEMORY=$MEM" >> /etc/condor/config.d/02-slot.conf
 fi
