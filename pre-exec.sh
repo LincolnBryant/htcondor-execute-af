@@ -25,10 +25,10 @@ else
   # Ei, Pi, Ti, Gi, Mi, Ki. 
   
   # Use numfmt to read in from the API and convert it to MB for HTCondor
-  MEM=$(($(echo ${K8S_MEM} | numfmt --from auto)/1024/1024))
+  #MEM=$(($(echo ${K8S_MEM} | numfmt --from auto)/1024/1024))
   #if [[ $MEM -gt 128 ]]; then 
   #  echo "Reserve 128MB of RAM for HTCondor daemons"
   #  echo "RESERVED_MEMORY=128" >> /etc/condor/config.d/02-slot.conf
   #fi 
-  echo "MEMORY=$MEM" >> /etc/condor/config.d/02-slot.conf
+  echo "MEMORY=${K8S_MEM}" >> /etc/condor/config.d/02-slot.conf
 fi
