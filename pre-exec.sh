@@ -18,17 +18,14 @@ fi
 if [ -z ${K8S_MEM+x} ]; then
   echo "No Kubernetes memory information received from downward API"
 else
-  # From the docs: 
-  # Limits and requests for memory are measured in bytes. You can express
-  # memory as a plain integer or as a fixed-point number using one of these
-  # suffixes: E, P, T, G, M, K. You can also use the power-of-two equivalents:
-  # Ei, Pi, Ti, Gi, Mi, Ki. 
-  
-  # Use numfmt to read in from the API and convert it to MB for HTCondor
-  #MEM=$(($(echo ${K8S_MEM} | numfmt --from auto)/1024/1024))
-  #if [[ $MEM -gt 128 ]]; then 
+  #if [[ $K8S_MEM -gt 128 ]]; then 
   #  echo "Reserve 128MB of RAM for HTCondor daemons"
   #  echo "RESERVED_MEMORY=128" >> /etc/condor/config.d/02-slot.conf
   #fi 
-  echo "MEMORY=${K8S_MEM}" >> /etc/condor/config.d/02-slot.conf
+  echo "MEMORY=$K8S_MEM" >> /etc/condor/config.d/02-slot.conf
 fi
+
+###############################################################################
+# Grab the connect provisioner 
+CONNECT_DIR='/usr/local/etc/ciconnect'
+curl -L https://raw.githubusercontent.com/maniaclab/ci-connect-api/master/resources/provisioner/sync_users.sh > $CONNECT_DIR/sync_users.sh
